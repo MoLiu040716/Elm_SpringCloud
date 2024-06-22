@@ -1,0 +1,108 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: "gateway-server2"
+  cloud:
+    gateway:
+      routes:
+        - id: userServer
+          uri: lb://user-server
+          predicates:
+            - Path=/userInfo/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+
+        - id: loginServer
+          uri: lb://login-server
+          predicates:
+            - Path=/userLogin/**
+          filters:
+            - name: Status
+              args:
+                status: 1
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+
+        - id: businessServer
+          uri: lb://business-server
+          predicates:
+            - Path=/business/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+
+        - id: foodServer
+          uri: lb://food-server
+          predicates:
+            - Path=/food/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+
+        - id: orderServer
+          uri: lb://order-server
+          predicates:
+            - Path=/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+
+        - id: addressServer
+          uri: lb://address-server
+          predicates:
+            - Path=/address/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: backendA
+                fallbackUri: forward:/fallback
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"  # 允许所有IP跨域访问
+            allowedMethods: "*"         # 允许所有请求方式
+            allowedHeaders: "*"         # 允许任何头进行跨域
+            allowCredentials: true      # 允许携带cookie
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://eurekaServer18000:18000/eureka/,http://eurekaServer18001:18001/eureka/"
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+
+resilience4j:
+  CircuitBreaker:
+    configs:
+      default:
+        failure-rate-threshold: 30
+        minimum-number-of-calls: 10
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 30
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 2s
+        permitted-number-of-calls-in-half-open-state: 3
+        record-exceptions:
+          - java.lang.Exception
+    instances:
+      backendA:
+        base-config: default
+
+
+

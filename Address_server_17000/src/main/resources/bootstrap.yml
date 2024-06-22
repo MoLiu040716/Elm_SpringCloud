@@ -1,0 +1,36 @@
+spring:
+  cloud:
+    config:
+      profile: dev
+      label: master
+      name: service_address_17000
+      discovery:
+        enabled: true
+        service-id: config-server
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/elm?SSL=false
+    username: root
+    password: 18580zjhdh
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 5
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: false
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+  client:
+    service-url:
+      defaultZone: "http://eurekaServer18000:18000/eureka/,http://eurekaServer18001:18001/eureka/"
+
